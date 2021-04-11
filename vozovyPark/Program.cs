@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace vozovyPark
 {
@@ -93,32 +93,32 @@ namespace vozovyPark
                 rezervace = JsonSerializer.Deserialize<List<Rezervace>>(jsonReservations);
             }
             Console.WriteLine("Vítejte ve Vozovém parku ");
-            /*
-                        //přihlášení
-                        bool logged = false;
-                        do
-                        {
-                            Console.Write("Zadejte jméno: ");
-                            uid = Console.ReadLine();
-                            Console.Write("Zadejte heslo: ");
-                            string heslo = Console.ReadLine();
-                            foreach (User user in users)
-                            {
-                                if (user.uid == uid && user.heslo == heslo)
-                                {
-                                    logged = true;
-                                }
-                            }
-                            if (!logged)
-                            {
-                                Console.WriteLine("Zadal jste špatné uživatelské jméno nebo heslo");
-                                Console.WriteLine();
-                            }
-                        } while (!logged);
-            */
+
+            //přihlášení
+            bool logged = false;
+            do
+            {
+                Console.Write("Zadejte jméno: ");
+                uid = Console.ReadLine();
+                Console.Write("Zadejte heslo: ");
+                string heslo = Console.ReadLine();
+                foreach (User u in users)
+                {
+                    if (u.uid == uid && u.heslo == GetHashString(heslo))
+                    {
+                        logged = true;
+                    }
+                }
+                if (!logged)
+                {
+                    Console.WriteLine("Zadal jste špatné uživatelské jméno nebo heslo");
+                    Console.WriteLine();
+                }
+            } while (!logged);
+
 
             //uid admin - debug
-            uid = "admin";
+            //uid = "admin";
             //kontrola, zda si uživatel nemá změnit heslo
             User user = users.Find(e => e.uid == uid);
             if (user.zmenitHeslo)
@@ -184,8 +184,10 @@ namespace vozovyPark
                         ZobrazRezervacePoUzivatelichA();
                         break;
                     case 5:
+                        ZobrazRezervacePodleVozidelH();
                         break;
                     case 6:
+                        ZobrazRezervacePodleVozidelA();
                         break;
                     case 7:
                         PridejRezervaci();
@@ -245,7 +247,8 @@ namespace vozovyPark
             Console.Write("Zadejte nové heslo: ");
             string noveHeslo = Console.ReadLine();
             User user = users.Find(e => e.uid == uid);
-            user.heslo = noveHeslo;
+            user.heslo = GetHashString(noveHeslo);
+            Console.WriteLine();
             user.zmenitHeslo = false;
         }
         static void ZobrazSeznamRezervaci()
@@ -254,7 +257,7 @@ namespace vozovyPark
             Console.Write("ID Uživatele".PadRight(20, '.'));
             Console.Write("VIN".PadRight(20, '.'));
             Console.Write("Od".PadRight(20, '.'));
-            Console.WriteLine("Do");
+            Console.WriteLine("Do".PadRight(20, '.'));
             rezervace.ForEach(delegate (Rezervace r)
                             {
                                 if (uid == r.uid || uid == "admin")
@@ -274,7 +277,7 @@ namespace vozovyPark
                 Console.WriteLine("====================================Seznam vozidel uživatele {0}====================================", u.uid);
                 Console.Write("VIN".PadRight(20, '.'));
                 Console.Write("Od".PadRight(20, '.'));
-                Console.WriteLine("Do");
+                Console.WriteLine("Do".PadRight(20, '.'));
                 rezervace
                     .FindAll(x => x.uid == u.uid && x.vraceni < DateTime.Now)
                     .ForEach(delegate (Rezervace r)
@@ -296,9 +299,53 @@ namespace vozovyPark
                 Console.WriteLine("====================================Seznam vozidel uživatele {0}====================================", u.uid);
                 Console.Write("VIN".PadRight(20, '.'));
                 Console.Write("Od".PadRight(20, '.'));
-                Console.WriteLine("Do");
+                Console.WriteLine("Do".PadRight(20, '.'));
                 rezervace
                     .FindAll(x => x.uid == u.uid && x.vraceni > DateTime.Now)
+                    .ForEach(delegate (Rezervace r)
+                    {
+                        if (uid == r.uid || uid == "admin")
+                        {
+                            Console.Write(r.vin.PadRight(20));
+                            Console.Write(Convert.ToString(r.vypujceni).PadRight(20));
+                            Console.WriteLine(Convert.ToString(r.vraceni));
+                        }
+                    });
+                Console.WriteLine();
+            });
+        }
+        static void ZobrazRezervacePodleVozidelH()
+        {
+            cars.ForEach(delegate (Car c)
+            {
+                Console.WriteLine("====================================Seznam vozidel podle VIN {0}====================================", c.vin);
+                Console.Write("ID Uživatele".PadRight(20, '.'));
+                Console.Write("Od".PadRight(20, '.'));
+                Console.WriteLine("Do".PadRight(20, '.'));
+                rezervace
+                    .FindAll(x => x.vin == c.vin && x.vraceni < DateTime.Now)
+                    .ForEach(delegate (Rezervace r)
+                    {
+                        if (uid == r.uid || uid == "admin")
+                        {
+                            Console.Write(r.vin.PadRight(20));
+                            Console.Write(Convert.ToString(r.vypujceni).PadRight(20));
+                            Console.WriteLine(Convert.ToString(r.vraceni));
+                        }
+                    });
+                Console.WriteLine();
+            });
+        }
+        static void ZobrazRezervacePodleVozidelA()
+        {
+            cars.ForEach(delegate (Car c)
+            {
+                Console.WriteLine("====================================Seznam vozidel podle VIN {0}====================================", c.vin);
+                Console.Write("ID Uživatele".PadRight(20, '.'));
+                Console.Write("Od".PadRight(20, '.'));
+                Console.WriteLine("Do".PadRight(20,'.'));
+                rezervace
+                    .FindAll(x => x.vin == c.vin && x.vraceni > DateTime.Now)
                     .ForEach(delegate (Rezervace r)
                     {
                         if (uid == r.uid || uid == "admin")
@@ -416,7 +463,6 @@ namespace vozovyPark
             Console.WriteLine("Rezervace přijata.");
             Console.WriteLine();
         }
-
         static void ZruseniRezervace()
         {
             Console.WriteLine("====================================Zrušení rezervace vozidla====================================");
@@ -481,7 +527,7 @@ namespace vozovyPark
             Console.Write("Zadejte příjmení: ");
             string surname = Console.ReadLine();
             Console.Write("Zadejte heslo: ");
-            string password = Console.ReadLine();
+            string password = GetHashString(Console.ReadLine());
             users.Add(new User(login, name, surname, password, false));
         }
         static void OdstranUzivatele()
@@ -595,6 +641,19 @@ namespace vozovyPark
                 Console.WriteLine("Neznámý záznam");
             }
             Console.WriteLine();
+        }
+        public static byte[] GetHash(string inputString)
+        {
+            using (HashAlgorithm algorithm = SHA256.Create())
+                return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+        }
+        public static string GetHashString(string inputString)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in GetHash(inputString))
+                sb.Append(b.ToString("X2"));
+
+            return sb.ToString();
         }
     }
 }
