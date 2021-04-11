@@ -134,21 +134,25 @@ namespace vozovyPark
                 Console.WriteLine("(0) Odhlásit se");
                 Console.WriteLine("(1) Změna hesla");
                 Console.WriteLine("-----------------------------");
-                Console.WriteLine("(2) Zobrazit seznam rezervací");
-                Console.WriteLine("(3) Přidat rezervaci vozu");
-                Console.WriteLine("(4) Zrušení rezervace");
+                Console.WriteLine("(2) Zobrazit seznam rezervací - VŠECHNO");
+                Console.WriteLine("(3) - po uživatelích - historické");
+                Console.WriteLine("(4) - po uživatelích - aktuální");
+                Console.WriteLine("(5) - po vozidlech - historické");
+                Console.WriteLine("(6) - po vozidlech - aktuální");
+                Console.WriteLine("(7) Přidat rezervaci vozu");
+                Console.WriteLine("(8) Zrušení rezervace");
                 //admin menu
                 if (uid == "admin")
                 {
                     Console.WriteLine("-----------------------------");
-                    Console.WriteLine("(5) Zobrazit seznam uživatelů");
-                    Console.WriteLine("(6) Přidat uživatele");
-                    Console.WriteLine("(7) Odstranit uživatele");
-                    Console.WriteLine("(8) Vynutit změnu hesla");
+                    Console.WriteLine("(9) Zobrazit seznam uživatelů");
+                    Console.WriteLine("(10) Přidat uživatele");
+                    Console.WriteLine("(11) Odstranit uživatele");
+                    Console.WriteLine("(12) Vynutit změnu hesla");
                     Console.WriteLine("---------------------------");
-                    Console.WriteLine("(9) Zobrazit seznam vozidel");
-                    Console.WriteLine("(10) Přidat vůz");
-                    Console.WriteLine("(11) Odstranit vůz");
+                    Console.WriteLine("(13) Zobrazit seznam vozidel");
+                    Console.WriteLine("(14) Přidat vůz");
+                    Console.WriteLine("(15) Odstranit vůz");
                 }
                 Console.WriteLine();
                 Console.Write("Vyberte si číslo z menu: ");
@@ -174,31 +178,41 @@ namespace vozovyPark
                         ZobrazSeznamRezervaci();
                         break;
                     case 3:
-                        PridejRezervaci();
+                        ZobrazRezervacePoUzivatelichH();
                         break;
                     case 4:
+                        ZobrazRezervacePoUzivatelichA();
+                        break;
+                    case 5:
+                        break;
+                    case 6:
+                        break;
+                    case 7:
+                        PridejRezervaci();
+                        break;
+                    case 8:
                         ZruseniRezervace();
                         break;
                     //jen admin
-                    case 5:
+                    case 9:
                         ZobrazSeznamUzivatelu();
                         break;
-                    case 6:
+                    case 10:
                         PridejUzivatele();
                         break;
-                    case 7:
+                    case 11:
                         OdstranUzivatele();
                         break;
-                    case 8:
+                    case 12:
                         VynutitZmenuHesla();
                         break;
-                    case 9:
+                    case 13:
                         ZobrazSeznamVozidel();
                         break;
-                    case 10:
+                    case 14:
                         PridejVozidlo();
                         break;
-                    case 11:
+                    case 15:
                         OdstranVozidlo();
                         break;
                     default:
@@ -236,19 +250,66 @@ namespace vozovyPark
         }
         static void ZobrazSeznamRezervaci()
         {
-            Console.WriteLine("====================================Historie rezervací vozidel====================================");
+            Console.WriteLine("====================================Seznam rezervací vozidel====================================");
             Console.Write("ID Uživatele".PadRight(20, '.'));
             Console.Write("VIN".PadRight(20, '.'));
             Console.Write("Od".PadRight(20, '.'));
             Console.WriteLine("Do");
-            foreach (Rezervace rezervace in rezervace)
-            {
-                Console.Write(rezervace.uid.PadRight(20));
-                Console.Write(rezervace.vin.PadRight(20));
-                Console.Write(Convert.ToString(rezervace.vypujceni).PadRight(20));
-                Console.WriteLine(Convert.ToString(rezervace.vraceni));
-            }
+            rezervace.ForEach(delegate (Rezervace r)
+                            {
+                                if (uid == r.uid || uid == "admin")
+                                {
+                                    Console.Write(r.uid.PadRight(20));
+                                    Console.Write(r.vin.PadRight(20));
+                                    Console.Write(Convert.ToString(r.vypujceni).PadRight(20));
+                                    Console.WriteLine(Convert.ToString(r.vraceni));
+                                }
+                            });
             Console.WriteLine();
+        }
+        static void ZobrazRezervacePoUzivatelichH()
+        {
+            users.ForEach(delegate (User u)
+            {
+                Console.WriteLine("====================================Seznam vozidel uživatele {0}====================================", u.uid);
+                Console.Write("VIN".PadRight(20, '.'));
+                Console.Write("Od".PadRight(20, '.'));
+                Console.WriteLine("Do");
+                rezervace
+                    .FindAll(x => x.uid == u.uid && x.vraceni < DateTime.Now)
+                    .ForEach(delegate (Rezervace r)
+                    {
+                        if (uid == r.uid || uid == "admin")
+                        {
+                            Console.Write(r.vin.PadRight(20));
+                            Console.Write(Convert.ToString(r.vypujceni).PadRight(20));
+                            Console.WriteLine(Convert.ToString(r.vraceni));
+                        }
+                    });
+                Console.WriteLine();
+            });
+        }
+        static void ZobrazRezervacePoUzivatelichA()
+        {
+            users.ForEach(delegate (User u)
+            {
+                Console.WriteLine("====================================Seznam vozidel uživatele {0}====================================", u.uid);
+                Console.Write("VIN".PadRight(20, '.'));
+                Console.Write("Od".PadRight(20, '.'));
+                Console.WriteLine("Do");
+                rezervace
+                    .FindAll(x => x.uid == u.uid && x.vraceni > DateTime.Now)
+                    .ForEach(delegate (Rezervace r)
+                    {
+                        if (uid == r.uid || uid == "admin")
+                        {
+                            Console.Write(r.vin.PadRight(20));
+                            Console.Write(Convert.ToString(r.vypujceni).PadRight(20));
+                            Console.WriteLine(Convert.ToString(r.vraceni));
+                        }
+                    });
+                Console.WriteLine();
+            });
         }
         static void PridejRezervaci()
         {
