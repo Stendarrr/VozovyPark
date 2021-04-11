@@ -1,0 +1,26 @@
+[
+  {
+    "uid": "admin",
+    "jmeno": "Jan",
+    "prijmeni": "Nopartn\u00FD",
+    "heslo": "asdw",
+    "logoutDateTime": "2021-04-10T22:33:30.3119499+02:00",
+    "zmenitHeslo": false
+  },
+  {
+    "uid": "user1",
+    "jmeno": "Amog",
+    "prijmeni": "Us",
+    "heslo": "1234",
+    "logoutDateTime": "0001-01-01T00:00:00",
+    "zmenitHeslo": false
+  },
+  {
+    "uid": "Petr",
+    "jmeno": "Petr",
+    "prijmeni": "Ga\u0161par\u00EDk",
+    "heslo": "asdf",
+    "logoutDateTime": "0001-01-01T00:00:00",
+    "zmenitHeslo": false
+  }
+]

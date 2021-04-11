@@ -1,0 +1,18 @@
+[
+  {
+    "vin": "2GCEK13Z361252872",
+    "znacka": "\u0161koda",
+    "model": "favorit",
+    "typ": "kombi",
+    "spotreba": 9.5,
+    "servisniZaznamy": "STK kon\u010D\u00ED 2022"
+  },
+  {
+    "vin": "ZDM1UB5W86B016210",
+    "znacka": "Chevrolet",
+    "model": "Silverado",
+    "typ": "sedan",
+    "spotreba": 11.4,
+    "servisniZaznamy": "bez STK"
+  }
+]
