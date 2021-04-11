@@ -171,7 +171,7 @@ namespace vozovyPark
                         ZmenaHesla();
                         break;
                     case 2:
-                        HistorieRezervaci();
+                        ZobrazSeznamRezervaci();
                         break;
                     case 3:
                         PridejRezervaci();
@@ -234,7 +234,7 @@ namespace vozovyPark
             user.heslo = noveHeslo;
             user.zmenitHeslo = false;
         }
-        static void HistorieRezervaci()
+        static void ZobrazSeznamRezervaci()
         {
             Console.WriteLine("====================================Historie rezervací vozidel====================================");
             Console.Write("ID Uživatele".PadRight(20, '.'));
